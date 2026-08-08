@@ -1,0 +1,173 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ImagePlus, X, ChevronDown } from 'lucide-react';
+
+const CATEGORIES = ['วรรณกรรม', 'นิยายแปล', 'จิตวิทยา/พัฒนาตนเอง', 'ประวัติศาสตร์', 'แฟนตาซี/ไซไฟ', 'นิยายสืบสวน', 'การ์ตูน/มังงะ', 'อื่นๆ'];
+
+export default function AddBookPage() {
+  const navigate = useNavigate();
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [form, setForm] = useState({
+    title: '',
+    author: '',
+    condition: '',
+    category: '',
+    description: '',
+    isRare: false,
+  });
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.title || !form.author || !form.condition) return;
+    setSubmitted(true);
+    setTimeout(() => navigate('/my-books'), 2000);
+  };
+
+  if (submitted) {
+    return (
+      <div className="max-w-2xl mx-auto px-6 md:px-12 py-32 text-center">
+        <div className="text-5xl mb-6">📚</div>
+        <h2 className="font-heading text-3xl font-medium mb-4">ลงรายการสำเร็จ!</h2>
+        <p className="text-text-main/70">หนังสือของคุณถูกเพิ่มเข้าชั้นแล้ว กำลังพาคุณไปที่หน้าหนังสือของฉัน…</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-3xl mx-auto px-6 md:px-12 py-12">
+      <div className="mb-10">
+        <h1 className="text-4xl font-heading font-medium mb-3">ลงรายการหนังสือ</h1>
+        <p className="text-text-main/70">กรอกรายละเอียดหนังสือที่คุณต้องการส่งต่อ เพื่อให้นักอ่านคนต่อไปได้พบกับมัน</p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="flex flex-col gap-10">
+
+        {/* Image Upload */}
+        <div className="flex flex-col gap-3">
+          <label className="text-sm font-medium uppercase tracking-widest text-text-main/60">รูปปกหนังสือ</label>
+          <div className="flex gap-4 items-start">
+            <label className="relative w-36 aspect-[3/4] border-2 border-dashed border-border-main rounded-md flex flex-col items-center justify-center cursor-pointer hover:border-accent hover:bg-bg-secondary transition-colors flex-shrink-0 overflow-hidden">
+              {previewUrl ? (
+                <>
+                  <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
+                  <button type="button" onClick={() => setPreviewUrl(null)}
+                    className="absolute top-2 right-2 bg-bg-main rounded-full p-1 border border-border-main">
+                    <X className="w-3 h-3" />
+                  </button>
+                </>
+              ) : (
+                <>
+                  <ImagePlus className="w-8 h-8 text-text-main/30 mb-2" />
+                  <span className="text-xs text-text-main/50 text-center px-2">คลิกเพื่ออัปโหลด</span>
+                </>
+              )}
+              <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+            </label>
+            <p className="text-sm text-text-main/60 leading-relaxed pt-2">
+              รองรับไฟล์ JPG, PNG ขนาดไม่เกิน 5MB<br/>
+              แนะนำให้ถ่ายรูปปกหนังสือให้เห็นชัดเจน เพื่อให้ผู้สนใจแลกเปลี่ยนตัดสินใจได้ง่ายขึ้น
+            </p>
+          </div>
+        </div>
+
+        {/* Book Info */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium">ชื่อหนังสือ <span className="text-warning">*</span></label>
+            <input name="title" value={form.title} onChange={handleChange} required
+              className="w-full bg-bg-main border border-border-main rounded-md px-4 py-3 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all"
+              placeholder="เช่น The Secret History" />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium">ชื่อผู้แต่ง <span className="text-warning">*</span></label>
+            <input name="author" value={form.author} onChange={handleChange} required
+              className="w-full bg-bg-main border border-border-main rounded-md px-4 py-3 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all"
+              placeholder="เช่น Donna Tartt" />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Condition */}
+          <div className="flex flex-col gap-3">
+            <label className="text-sm font-medium">สภาพหนังสือ <span className="text-warning">*</span></label>
+            <div className="flex flex-col gap-2">
+              {[
+                { value: 'New', label: 'มือหนึ่ง/ใหม่', desc: 'ยังไม่ผ่านการใช้งาน' },
+                { value: 'Like New', label: 'เหมือนใหม่', desc: 'อ่านน้อยครั้ง ไม่มีรอย' },
+                { value: 'Good', label: 'สภาพดี', desc: 'มีรอยพับเล็กน้อย' },
+                { value: 'Fair', label: 'พอใช้', desc: 'มีรอยใช้งานพอสมควร' },
+                { value: 'Poor', label: 'เก่า/มีตำหนิ', desc: 'มีรอยขีดเขียน/ฉีกขาด' },
+              ].map(opt => (
+                <label key={opt.value} className={`flex items-center gap-3 p-3 rounded-md border cursor-pointer transition-colors ${form.condition === opt.value ? 'border-accent bg-accent/5' : 'border-border-main hover:bg-bg-secondary'}`}>
+                  <input type="radio" name="condition" value={opt.value} checked={form.condition === opt.value} onChange={handleChange} className="accent-accent" />
+                  <div>
+                    <p className="text-sm font-medium">{opt.label}</p>
+                    <p className="text-xs text-text-main/60">{opt.desc}</p>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-6">
+            {/* Category */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium">หมวดหมู่</label>
+              <div className="relative">
+                <select name="category" value={form.category} onChange={handleChange}
+                  className="w-full appearance-none bg-bg-main border border-border-main rounded-md px-4 py-3 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all">
+                  <option value="">เลือกหมวดหมู่</option>
+                  {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+                <ChevronDown className="absolute right-3 top-3.5 w-4 h-4 text-text-main/50 pointer-events-none" />
+              </div>
+            </div>
+
+            {/* Rare checkbox */}
+            <label className="flex items-start gap-3 p-4 border border-border-main rounded-md cursor-pointer hover:bg-bg-secondary transition-colors">
+              <input type="checkbox" checked={form.isRare} onChange={e => setForm(p => ({ ...p, isRare: e.target.checked }))} className="mt-0.5 accent-warning" />
+              <div>
+                <p className="text-sm font-medium">หายาก / เลิกพิมพ์แล้ว</p>
+                <p className="text-xs text-text-main/60">หนังสือที่หาซื้อยากในปัจจุบัน จะแสดงป้าย "หายาก" บนการ์ด</p>
+              </div>
+            </label>
+
+            {/* Description */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium">บันทึกจากเจ้าของ</label>
+              <textarea name="description" value={form.description} onChange={handleChange} rows={5}
+                className="w-full bg-bg-main border border-border-main rounded-md px-4 py-3 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all resize-none"
+                placeholder="เล่าสภาพจริงๆ ของหนังสือให้ผู้สนใจได้รู้ เช่น มีรอยไฮไลท์หรือเปล่า ปกโค้งมั้ย ฯลฯ" />
+            </div>
+          </div>
+        </div>
+
+        {/* Submit */}
+        <div className="flex items-center gap-4 pt-4 border-t border-border-main">
+          <button type="submit"
+            className="bg-accent text-bg-main px-10 py-3 rounded-md font-medium text-lg hover:bg-accent/90 transition-colors">
+            ลงรายการหนังสือ
+          </button>
+          <button type="button" onClick={() => navigate(-1)}
+            className="text-text-main/60 hover:text-text-main transition-colors font-medium">
+            ยกเลิก
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}

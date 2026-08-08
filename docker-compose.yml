@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-reread}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-reread_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-reread_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - reread_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-reread} -d ${POSTGRES_DB:-reread_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount backend code for hot-reload during development
+      - ./backend:/app
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://reread:reread_secret@db:5432/reread_db}
+      JWT_SECRET: ${JWT_SECRET:-change-me-to-a-random-secret-key}
+      JWT_ALGORITHM: ${JWT_ALGORITHM:-HS256}
+      JWT_EXPIRE_MINUTES: ${JWT_EXPIRE_MINUTES:-60}
+    # Override CMD to enable --reload for development
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  reread_pgdata:

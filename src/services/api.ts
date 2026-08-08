@@ -1,0 +1,116 @@
+/**
+ * API service — centralized HTTP client for calling the backend.
+ */
+
+const API_BASE = 'http://localhost:8000/api';
+
+interface ApiResponse<T> {
+  success: boolean;
+  data: T | null;
+  message: string;
+}
+
+class ApiError extends Error {
+  status: number;
+  constructor(status: number, message: string) {
+    super(message);
+    this.status = status;
+    this.name = 'ApiError';
+  }
+}
+
+async function request<T>(
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<ApiResponse<T>> {
+  const token = localStorage.getItem('access_token');
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...((options.headers as Record<string, string>) || {}),
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const res = await fetch(`${API_BASE}${endpoint}`, {
+    ...options,
+    headers,
+  });
+
+  // Handle HTTP errors that come with { detail: ... } from FastAPI
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    const message = body.detail || body.message || `Error ${res.status}`;
+    throw new ApiError(res.status, message);
+  }
+
+  return res.json();
+}
+
+// ---------------------------------------------------------------------------
+// Auth
+// ---------------------------------------------------------------------------
+
+export interface TokenData {
+  access_token: string;
+  token_type: string;
+}
+
+export interface UserData {
+  id: string;
+  username: string;
+  email: string;
+  display_name: string;
+  avatar_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export async function apiRegister(data: {
+  username: string;
+  email: string;
+  password: string;
+  display_name: string;
+}) {
+  return request<UserData>('/register', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function apiLogin(username: string, password: string) {
+  return request<TokenData>('/login', {
+    method: 'POST',
+    body: JSON.stringify({ username, password }),
+  });
+}
+
+export async function apiLogout() {
+  return request<null>('/logout', { method: 'POST' });
+}
+
+export async function apiGetMe() {
+  return request<UserData>('/me');
+}
+
+export async function apiChangePassword(oldPassword: string, newPassword: string) {
+  return request<null>('/change-password', {
+    method: 'POST',
+    body: JSON.stringify({ old_password: oldPassword, new_password: newPassword }),
+  });
+}
+
+export async function apiCheckUsername(name: string) {
+  return request<{ username: string; available: boolean }>(`/check-username/${name}`);
+}
+
+export async function apiUpdateUser(userId: string, data: { display_name?: string; avatar_url?: string }) {
+  return request<UserData>(`/users/${userId}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+export { ApiError };
