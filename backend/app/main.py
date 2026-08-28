@@ -18,11 +18,18 @@ app = FastAPI(
 )
 
 # ---------------------------------------------------------------------------
-# CORS — allow the React frontend to talk to the API during development
+# CORS — allow the React frontend to talk to the API during development and production
 # ---------------------------------------------------------------------------
+origins = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "https://re-read-three.vercel.app",
+    "https://re-read-git-main-aphi.vercel.app",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=origins,  # หรือใช้ ["*"] เพื่ออนุญาตทุกโดเมนชั่วคราว
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
