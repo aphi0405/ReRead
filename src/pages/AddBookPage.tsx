@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ImagePlus, X, ChevronDown } from 'lucide-react';
+import { ImagePlus, X, ChevronDown, Loader2 } from 'lucide-react';
+import { apiCreateBook } from '../services/api';
 
 const CATEGORIES = ['วรรณกรรม', 'นิยายแปล', 'จิตวิทยา/พัฒนาตนเอง', 'ประวัติศาสตร์', 'แฟนตาซี/ไซไฟ', 'นิยายสืบสวน', 'การ์ตูน/มังงะ', 'อื่นๆ'];
 
@@ -17,6 +18,8 @@ export default function AddBookPage() {
   });
   const [submitted, setSubmitted] = useState(false);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -30,11 +33,35 @@ export default function AddBookPage() {
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title || !form.author || !form.condition) return;
-    setSubmitted(true);
-    setTimeout(() => navigate('/my-books'), 2000);
+    
+    setIsSubmitting(true);
+    try {
+      const tags = [];
+      if (form.category) tags.push(form.category);
+      if (form.isRare) tags.push('หายาก / เลิกพิมพ์แล้ว');
+      
+      const res = await apiCreateBook({
+        title: form.title,
+        author: form.author,
+        condition: form.condition,
+        description: form.description,
+        tags: tags,
+        cover_url: previewUrl || undefined, // in real app, we'd upload image and get URL
+      });
+      
+      if (res.success) {
+        setSubmitted(true);
+        setTimeout(() => navigate('/my-books'), 2000);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('เกิดข้อผิดพลาดในการลงรายการหนังสือ');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -156,10 +183,10 @@ export default function AddBookPage() {
           </div>
         </div>
 
-        {/* Submit */}
         <div className="flex items-center gap-4 pt-4 border-t border-border-main">
-          <button type="submit"
-            className="bg-accent text-bg-main px-10 py-3 rounded-md font-medium text-lg hover:bg-accent/90 transition-colors">
+          <button type="submit" disabled={isSubmitting}
+            className="flex items-center gap-2 bg-accent text-bg-main px-10 py-3 rounded-md font-medium text-lg hover:bg-accent/90 transition-colors disabled:opacity-70">
+            {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
             ลงรายการหนังสือ
           </button>
           <button type="button" onClick={() => navigate(-1)}

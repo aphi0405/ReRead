@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { BookOpen, Search, ChevronDown, BookPlus, LayoutDashboard, User, Heart, LogOut, BookMarked, MessageCircle, LogIn } from 'lucide-react';
+import { Search, ChevronDown, BookPlus, LayoutDashboard, User, Heart, LogOut, BookMarked, MessageCircle, LogIn, Settings } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function Navbar() {
@@ -22,13 +22,16 @@ export default function Navbar() {
     <nav className="w-full border-b border-border-main bg-bg-main py-4 px-6 md:px-12 flex items-center justify-between sticky top-0 z-50">
       <div className="flex items-center gap-8">
         <Link to="/" className="flex items-center gap-2">
-          <BookOpen className="w-6 h-6 text-accent" />
+          <img src="/ReRead_icon.png" alt="ReRead" className="w-10 h-10 object-contain" />
           <span className="font-heading font-semibold text-2xl tracking-wide">ReRead</span>
         </Link>
 
         <div className="hidden md:flex items-center gap-6 text-sm font-medium">
           <Link to="/browse" className={isActive('/browse')}>ค้นหาหนังสือ</Link>
           <Link to="/requests" className={isActive('/requests')}>บอร์ดตามหา</Link>
+          {!isAuthenticated && (
+            <Link to="/about" className={isActive('/about')}>เกี่ยวกับเรา</Link>
+          )}
           {isAuthenticated && (
             <>
               <Link to="/add-book" className={`flex items-center gap-1.5 ${isActive('/add-book')}`}>
@@ -107,6 +110,10 @@ export default function Navbar() {
                     className="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-bg-secondary transition-colors">
                     <MessageCircle className="w-4 h-4 text-text-main/60" /> ข้อความ
                     <span className="ml-auto bg-warning text-bg-main text-[10px] font-bold px-1.5 py-0.5 rounded-full">2</span>
+                  </Link>
+                  <Link to="/settings" onClick={() => setProfileOpen(false)}
+                    className="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-bg-secondary transition-colors">
+                    <Settings className="w-4 h-4 text-text-main/60" /> ตั้งค่าบัญชี
                   </Link>
                 </div>
 

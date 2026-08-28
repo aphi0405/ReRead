@@ -4,10 +4,15 @@ SQLAlchemy model for the `users` table.
 
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.models.book import Book
+    from app.models.book_request import BookRequest
 
 from sqlalchemy import DateTime, String, func
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 
@@ -35,6 +40,14 @@ class User(Base):
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+    
+    # Relationships
+    books: Mapped[list["Book"]] = relationship(
+        "Book", back_populates="owner", cascade="all, delete-orphan"
+    )
+    book_requests: Mapped[list["BookRequest"]] = relationship(
+        "BookRequest", back_populates="owner", cascade="all, delete-orphan"
     )
 
     def __repr__(self) -> str:

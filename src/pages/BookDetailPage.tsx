@@ -1,12 +1,52 @@
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, BookMarked, MessageCircle, MapPin, Share2, AlertCircle } from 'lucide-react';
-import { MOCK_BOOKS } from '../data/mockBooks';
+import { ArrowLeft, BookMarked, MessageCircle, MapPin, Share2, AlertCircle, Loader2 } from 'lucide-react';
+import { apiGetBook, type BookData } from '../services/api';
 
 export default function BookDetailPage() {
   const { id } = useParams();
-  
-  // ในที่นี้เราจะ mock การดึงข้อมูล โดยใช้หนังสือเล่มแรกเสมอถ้าหาไม่เจอ
-  const book = MOCK_BOOKS.find(b => b.id === id?.replace('_copy', '')) || MOCK_BOOKS[0];
+  const [book, setBook] = useState<BookData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!id) return;
+    const fetchBook = async () => {
+      setLoading(true);
+      try {
+        const res = await apiGetBook(id);
+        if (res.success && res.data) {
+          setBook(res.data);
+        }
+      } catch (err: any) {
+        setError(err.message || 'ไม่พบหนังสือเล่มนี้');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBook();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-32">
+        <Loader2 className="w-10 h-10 animate-spin text-accent" />
+      </div>
+    );
+  }
+
+  if (error || !book) {
+    return (
+      <div className="max-w-6xl mx-auto px-6 md:px-12 py-12 text-center">
+        <p className="text-warning text-xl mb-4">{error || 'ไม่พบหนังสือเล่มนี้'}</p>
+        <Link to="/browse" className="text-accent hover:underline">← กลับไปหน้าค้นหา</Link>
+      </div>
+    );
+  }
+
+  const coverImage = book.cover_url || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=600';
+  const ownerName = book.owner?.display_name || 'ไม่ทราบ';
+  const ownerAvatar = book.owner?.avatar_url || '';
 
   const conditionTH = {
     'New': 'มือหนึ่ง/ใหม่',
@@ -28,19 +68,19 @@ export default function BookDetailPage() {
         
         {/* Left: Image Gallery */}
         <div className="w-full md:w-5/12 lg:w-1/2 flex gap-4">
-          {/* Vertical Thumbnails (Mock) */}
+          {/* Vertical Thumbnails */}
           <div className="hidden sm:flex flex-col gap-4 w-20">
             <div className="w-full aspect-[3/4] border-2 border-accent rounded-md overflow-hidden opacity-100 cursor-pointer">
-              <img src={book.coverUrl} className="w-full h-full object-cover" alt="Thumbnail 1" />
+              <img src={coverImage} className="w-full h-full object-cover" alt="Thumbnail 1" />
             </div>
             <div className="w-full aspect-[3/4] border border-border-main rounded-md overflow-hidden opacity-60 hover:opacity-100 cursor-pointer transition-opacity">
-              <img src={book.coverUrl} className="w-full h-full object-cover grayscale" alt="Thumbnail 2" />
+              <img src={coverImage} className="w-full h-full object-cover grayscale" alt="Thumbnail 2" />
             </div>
           </div>
           
           {/* Main Image */}
           <div className="flex-1 relative aspect-[3/4] border border-border-main rounded-md overflow-hidden bg-bg-secondary">
-            <img src={book.coverUrl} className="w-full h-full object-cover" alt={book.title} />
+            <img src={coverImage} className="w-full h-full object-cover" alt={book.title} />
             
             {/* Signature Condition Badge */}
             <div className="absolute top-6 right-6 bg-bg-main border border-border-main border-dashed px-4 py-2 flex flex-col items-center shadow-sm transform rotate-2">
@@ -67,9 +107,15 @@ export default function BookDetailPage() {
           {/* Owner Profile (Embedded) */}
           <div className="flex items-center justify-between p-4 bg-bg-secondary border border-border-main rounded-md mb-8">
             <div className="flex items-center gap-4">
-              <img src={book.owner.avatarUrl} alt={book.owner.name} className="w-12 h-12 rounded-full object-cover border border-border-main" />
+              {ownerAvatar ? (
+                <img src={ownerAvatar} alt={ownerName} className="w-12 h-12 rounded-full object-cover border border-border-main" />
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center text-accent font-heading text-lg">
+                  {ownerName.charAt(0)}
+                </div>
+              )}
               <div>
-                <p className="font-medium text-text-main">เจ้าของ: {book.owner.name}</p>
+                <p className="font-medium text-text-main">เจ้าของ: {ownerName}</p>
                 <div className="flex items-center gap-1 text-sm text-text-main/60 mt-0.5">
                   <MapPin className="w-3.5 h-3.5" /> กรุงเทพมหานคร
                 </div>

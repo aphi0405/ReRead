@@ -10,13 +10,13 @@ export default function LandingPage() {
     <div className="w-full">
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto px-6 md:px-12 py-20 md:py-32 grid md:grid-cols-12 gap-12 lg:gap-20 items-center">
-        <div className="md:col-span-6 lg:col-span-5 flex flex-col items-start gap-8">
-          <h1 className="text-5xl lg:text-7xl leading-[1.2] font-heading font-medium">
+        <div className="md:col-span-6 lg:col-span-5 flex flex-col items-start gap-9">
+          <h1 className="text-5xl lg:text-7xl leading-[1.25] font-heading font-medium">
             เรื่องราวดีๆ มีไว้ให้ <span className="italic text-accent">แบ่งปัน</span> ไม่ใช่แค่เก็บบนชั้น
           </h1>
-          
+
           <div className="text-lg text-text-main/80 leading-relaxed font-sans">
-            ร่วมเป็นส่วนหนึ่งกับนักอ่านกว่า <span className="font-semibold text-text-main">12,000 คน</span> ในคอมมูนิตี้ร้านหนังสืออิสระของเรา 
+            ร่วมเป็นส่วนหนึ่งกับนักอ่านกว่า <span className="font-semibold text-text-main">12,000 คน</span> ในคอมมูนิตี้ร้านหนังสืออิสระของเรา
             เราได้ช่วยส่งต่อหนังสือที่รักไปแล้วกว่า <span className="font-semibold text-text-main">45,000 เล่ม</span> ตั้งแต่เริ่มก่อตั้ง
           </div>
 
@@ -24,20 +24,20 @@ export default function LandingPage() {
             ค้นหาหนังสือ <ArrowRight className="w-5 h-5" />
           </Link>
         </div>
-        
+
         <div className="md:col-span-6 lg:col-span-7 relative h-[400px] sm:h-[500px] lg:h-[600px] w-full mt-10 md:mt-0">
           {/* Editorial Style Image Composition */}
           <div className="absolute top-0 right-0 w-4/5 h-4/5 border border-border-main rounded-md overflow-hidden z-10">
-            <img 
-              src="https://images.unsplash.com/photo-1495446815901-a7297e633e8d?q=80&w=1200&auto=format&fit=crop" 
-              alt="หนังสือบนโต๊ะ" 
+            <img
+              src="https://images.pexels.com/photos/4466329/pexels-photo-4466329.jpeg"
+              alt="หนังสือบนโต๊ะ"
               className="object-cover w-full h-full"
             />
           </div>
           <div className="absolute bottom-0 left-0 w-3/5 h-3/5 border border-border-main rounded-md overflow-hidden z-20 shadow-xl shadow-text-main/5">
-            <img 
-              src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=800&auto=format&fit=crop" 
-              alt="คนกำลังอ่านหนังสือ" 
+            <img
+              src="https://images.pexels.com/photos/6632420/pexels-photo-6632420.jpeg"
+              alt="คนกำลังอ่านหนังสือ"
               className="object-cover w-full h-full"
             />
           </div>
@@ -73,7 +73,7 @@ export default function LandingPage() {
       <section className="bg-bg-secondary w-full py-24">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
           <h2 className="text-4xl font-heading mb-16 text-center font-medium">วิธีการแลกเปลี่ยน</h2>
-          
+
           <div className="grid md:grid-cols-3 gap-12">
             <div className="flex flex-col gap-4 items-center text-center">
               <div className="w-16 h-16 rounded-full border border-border-main bg-bg-main flex items-center justify-center text-accent mb-2">
@@ -84,7 +84,7 @@ export default function LandingPage() {
                 เพิ่มหนังสือที่คุณอ่านจบแล้ว พร้อมระบุสภาพหนังสืออย่างซื่อตรงเหมือนบรรณารักษ์ตัวจริง
               </p>
             </div>
-            
+
             <div className="flex flex-col gap-4 items-center text-center">
               <div className="w-16 h-16 rounded-full border border-border-main bg-bg-main flex items-center justify-center text-accent mb-2">
                 <Search className="w-8 h-8" />
@@ -94,7 +94,7 @@ export default function LandingPage() {
                 เลือกดูหนังสือในชั้นของเรา เมื่อเจอเล่มที่ถูกใจก็ส่งคำขอแลกเปลี่ยนไปได้เลย
               </p>
             </div>
-            
+
             <div className="flex flex-col gap-4 items-center text-center">
               <div className="w-16 h-16 rounded-full border border-border-main bg-bg-main flex items-center justify-center text-accent mb-2">
                 <RefreshCw className="w-8 h-8" />

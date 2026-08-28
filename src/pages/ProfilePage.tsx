@@ -57,9 +57,9 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <button className="flex items-center gap-2 px-4 py-2 border border-border-main rounded-md text-sm font-medium hover:bg-bg-secondary transition-colors">
+        <Link to="/settings" className="flex items-center gap-2 px-4 py-2 border border-border-main rounded-md text-sm font-medium hover:bg-bg-secondary transition-colors">
           <Settings className="w-4 h-4" /> ตั้งค่าบัญชี
-        </button>
+        </Link>
       </div>
 
       {/* Stats */}

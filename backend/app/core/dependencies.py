@@ -4,7 +4,7 @@ FastAPI dependencies for authentication.
 
 import uuid
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -50,3 +50,29 @@ async def get_current_user(
         )
 
     return user
+
+async def get_current_user_optional(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+) -> User | None:
+    """
+    Like get_current_user, but doesn't raise exception if no token is provided.
+    """
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return None
+        
+    token = auth_header.split(" ")[1]
+    user_id_str = decode_access_token(token)
+
+    if user_id_str is None:
+        return None
+
+    try:
+        user_id = uuid.UUID(user_id_str)
+    except ValueError:
+        return None
+
+    user = await get_user_by_id(db, user_id)
+    return user
+

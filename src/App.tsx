@@ -13,6 +13,8 @@ import AddBookPage from './pages/AddBookPage';
 import MyBooksPage from './pages/MyBooksPage';
 import WishlistPage from './pages/WishlistPage';
 import ChatPage from './pages/ChatPage';
+import SettingsPage from './pages/SettingsPage';
+import AboutPage from './pages/AboutPage';
 
 function App() {
   return (
@@ -27,6 +29,7 @@ function App() {
           <Route path="/" element={<RootLayout />}>
             <Route index element={<LandingPage />} />
             <Route path="browse" element={<BrowsePage />} />
+            <Route path="about" element={<AboutPage />} />
             <Route path="book/:id" element={<BookDetailPage />} />
             <Route path="requests" element={<RequestsPage />} />
             {/* Member routes */}
@@ -36,6 +39,7 @@ function App() {
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="chat" element={<ChatPage />} />
+            <Route path="settings" element={<SettingsPage />} />
           </Route>
         </Routes>
       </BrowserRouter>
