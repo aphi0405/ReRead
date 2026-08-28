@@ -2,7 +2,7 @@
  * API service — centralized HTTP client for calling the backend.
  */
 
-const API_BASE = 'http://localhost:8000/api';
+const API_BASE = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : 'http://localhost:8000/api';
 
 interface ApiResponse<T> {
   success: boolean;
@@ -146,7 +146,7 @@ export async function apiGetBooks(params?: { page?: number; limit?: number; stat
   if (params?.limit) query.append('limit', params.limit.toString());
   if (params?.status) query.append('status', params.status);
   if (params?.search) query.append('search', params.search);
-  
+
   const queryString = query.toString() ? `?${query.toString()}` : '';
   return request<PaginatedBooksData>(`/books${queryString}`);
 }
@@ -205,7 +205,7 @@ export async function apiGetRequests(params?: {
   if (params?.limit) query.append('limit', params.limit.toString());
   if (params?.search) query.append('search', params.search);
   if (params?.mine) query.append('mine', 'true');
-  
+
   return request<{ requests: BookRequestData[]; total: number; page: number; limit: number; total_pages: number }>(`/requests?${query.toString()}`);
 }
 
