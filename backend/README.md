@@ -68,6 +68,25 @@ docker compose exec api alembic upgrade head
 | DELETE | `/api/users/{id}` | ✅ | ลบบัญชี (เฉพาะตัวเอง) |
 | GET | `/api/check-username/{name}` | ❌ | เช็ค username ว่าง? |
 
+### Books
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/api/books` | ❌ | ดูรายการหนังสือ (มี Pagination & Search) |
+| GET | `/api/books/me` | ✅ | ดูรายการหนังสือของฉัน |
+| GET | `/api/books/{id}` | ❌ | ดูรายละเอียดหนังสือ |
+| POST | `/api/books` | ✅ | เพิ่มหนังสือใหม่ |
+| PUT | `/api/books/{id}` | ✅ | แก้ไขข้อมูลหนังสือ (เฉพาะของตัวเอง) |
+| DELETE | `/api/books/{id}` | ✅ | ลบหนังสือ (เฉพาะของตัวเอง) |
+
+### Book Requests
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/api/requests` | ❌/✅ | ดูบอร์ดตามหาหนังสือ (`mine=true` ต้อง Auth) |
+| POST | `/api/requests` | ✅ | สร้างคำขอตามหาหนังสือ |
+| DELETE | `/api/requests/{id}` | ✅ | ลบคำขอ (เฉพาะของตัวเอง) |
+
 ## Project Structure
 
 ```
