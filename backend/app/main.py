@@ -26,9 +26,10 @@ origins = [
     "https://re-read-three.vercel.app",
     "https://re-read-git-main-aphi.vercel.app",
 ]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # อนุญาตทุกโดเมนชั่วคราวเพื่อให้ Frontend เรียกใช้งานได้
+    allow_origins=origins,  # หรือใช้ ["*"] เพื่ออนุญาตทุกโดเมนชั่วคราว
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
