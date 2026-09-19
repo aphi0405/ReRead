@@ -2,6 +2,10 @@
 
 REST API สำหรับเว็บแลกเปลี่ยนหนังสือมือสอง **ReRead** — สร้างด้วย FastAPI + PostgreSQL
 
+> **สถานะล่าสุด (19 ก.ย. 2569):** Auth, Users และ Books ใช้งานได้จริงบน PostgreSQL 16 ·
+> Book Requests ยังมีข้อบกพร่อง (HTTP 500) · เทสต์ยังรันไม่ผ่าน · ยังไม่มี API สำหรับ Swap / Chat / Wishlist / Review
+> ดูสรุปความคืบหน้าและ % ทั้งโปรเจกต์ที่ [README หลัก](../README.md)
+
 ## Tech Stack
 
 - **FastAPI** — Web framework
@@ -10,6 +14,7 @@ REST API สำหรับเว็บแลกเปลี่ยนหนั�
 - **PostgreSQL 16** — Database (Docker container)
 - **JWT** (`python-jose`) — Authentication
 - **Pydantic v2** — Validation & serialization
+- **Python 3.11** (Docker image) · **pytest** — Testing
 
 ## Quick Start
 
@@ -81,6 +86,8 @@ docker compose exec api alembic upgrade head
 
 ### Book Requests
 
+> ⚠️ **ข้อบกพร่องที่ทราบ:** `GET /api/requests` และ `POST /api/requests` ตอบ HTTP 500 เพราะ `BookRequestOwner` (`app/schemas/book_request.py`) ไม่ได้ตั้ง `from_attributes=True` ส่วน `DELETE` ยังไม่ได้ทดสอบกรณีลบสำเร็จ
+
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | GET | `/api/requests` | ❌/✅ | ดูบอร์ดตามหาหนังสือ (`mine=true` ต้อง Auth) |
@@ -101,6 +108,7 @@ backend/
 │   ├── models/           # SQLAlchemy models
 │   ├── routers/          # API route handlers
 │   ├── schemas/          # Pydantic schemas
+│   ├── seed_books.py     # สคริปต์ใส่ข้อมูลตัวอย่าง (48 เล่ม)
 │   └── main.py           # FastAPI app
 ├── tests/                # Pytest tests
 ├── Dockerfile
@@ -114,6 +122,25 @@ backend/
 # รันใน container
 docker compose exec api pytest tests/ -v
 ```
+
+> ⚠️ **สถานะปัจจุบัน:** เทสต์ทั้ง 25 ข้อ (`test_auth.py` 13, `test_users.py` 12) **error ตอน setup**
+> เพราะ `Book.tags` ใช้ชนิด `ARRAY` ของ PostgreSQL แต่ `tests/conftest.py` ใช้ SQLite ในหน่วยความจำ ซึ่งไม่รองรับชนิดนี้
+> จึงยังวัด coverage จริงไม่ได้ และยังไม่มีเทสต์ของ Books / Book Requests
+> (แนวทางแก้: ใช้ PostgreSQL สำหรับเทสต์ หรือเปลี่ยนชนิดของ `tags` ให้ใช้ได้ทั้งสองฐานข้อมูล)
+
+## Seed ข้อมูลตัวอย่าง
+
+```bash
+docker compose exec api python -m app.seed_books
+```
+
+## ข้อจำกัดที่ทราบ
+
+- `condition` ของหนังสือรับค่าอะไรก็ได้ ยังไม่มี validator จำกัดค่า
+- `cover_url` เป็นสตริง URL ยังไม่มีระบบอัปโหลดไฟล์
+- ไม่มี logging และ rate limit
+- `JWT_SECRET` ค่าเริ่มต้นใน `.env.example` ต้องเปลี่ยนก่อนใช้งานจริง
+- `docker-compose.yml` เป็นแบบ dev (`--reload` + bind mount) ยังไม่มีการตั้งค่า production
 
 ## Stopping
 

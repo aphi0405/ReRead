@@ -1,8 +1,11 @@
 # 📚 สรุปงานโปรเจกต์ ReRead — เว็บไซต์แลกเปลี่ยนหนังสือมือสอง
 
-**ประเภท:** Frontend Only (React + TypeScript + Tailwind CSS + Vite)  
-**ที่เก็บไฟล์:** `d:\ReRead\`  
-**วิธีรัน:** เปิด Terminal → พิมพ์ `npm run dev` → เปิดเบราว์เซอร์ที่ `http://localhost:5173`
+**ประเภท:** Full-stack — Frontend (React + TypeScript + Tailwind CSS + Vite) + Backend (FastAPI + PostgreSQL)  
+**Git Repo:** https://github.com/aphi0405/ReRead  
+**วิธีรัน:** ดูขั้นตอนเต็มใน [README.md](README.md) (Backend ผ่าน Docker Compose, Frontend ด้วย `npm run dev` ที่ `http://localhost:5173`)  
+**อัปเดตล่าสุด:** 19 กันยายน 2569
+
+> เอกสารนี้สรุปดีไซน์และหน้าเว็บฝั่ง Frontend สำหรับ **สถานะความคืบหน้า, % ที่เสร็จ และข้อบกพร่องที่ทราบ** ให้ดูที่ [README.md](README.md)
 
 ---
 
@@ -24,46 +27,45 @@
 ## 📂 โครงสร้างโฟลเดอร์
 
 ```
-d:\ReRead\
-├── public/
-│   ├── avatar-mint.png     ← Avatar การ์ตูน "มินต์" (ผู้ใช้ปัจจุบัน)
-│   ├── avatar-wanna.png    ← Avatar การ์ตูน "วรรณา ก."
-│   ├── avatar-poom.png     ← Avatar การ์ตูน "ภูมิ ส."
-│   └── avatar-dao.png      ← Avatar การ์ตูน "ดาว ร."
+ReRead/
+├── backend/                    ← FastAPI + PostgreSQL (ดู backend/README.md)
+│   ├── app/                    ← routers, schemas, crud, models, core, db
+│   ├── alembic/                ← migrations (4 ไฟล์)
+│   └── tests/                  ← pytest (25 เทสต์ ปัจจุบันยังรันไม่ผ่าน)
+├── public/                     ← avatar-*.png, ไอคอน
 ├── src/
 │   ├── components/
-│   │   ├── layout/
-│   │   │   ├── Navbar.tsx      ← แถบเมนูด้านบน
-│   │   │   ├── Footer.tsx      ← ส่วนท้ายของเว็บ
-│   │   │   └── RootLayout.tsx  ← โครงสร้างหลัก (ครอบ Navbar + Footer)
+│   │   ├── layout/             ← Navbar, Footer, RootLayout
 │   │   └── BookCard.tsx        ← การ์ดหนังสือพร้อม Signature Tag
-│   ├── data/
-│   │   ├── mockBooks.ts        ← ข้อมูลหนังสือตัวอย่าง
-│   │   └── mockBooksTh.ts      ← ข้อมูลหนังสือเวอร์ชันชื่อไทย
-│   ├── pages/
-│   │   ├── LandingPage.tsx     ← หน้าแรก
-│   │   ├── LoginPage.tsx       ← หน้าเข้าสู่ระบบ
-│   │   ├── SignupPage.tsx      ← หน้าสมัครสมาชิก
-│   │   ├── BrowsePage.tsx      ← หน้าค้นหาและเลือกหนังสือ
-│   │   ├── BookDetailPage.tsx  ← หน้ารายละเอียดหนังสือ
-│   │   ├── DashboardPage.tsx   ← แผงควบคุมการแลกเปลี่ยน
-│   │   ├── ProfilePage.tsx     ← หน้าโปรไฟล์ผู้ใช้
-│   │   ├── AddBookPage.tsx     ← หน้าลงรายการหนังสือ
-│   │   ├── MyBooksPage.tsx     ← หน้าหนังสือของฉัน
-│   │   ├── WishlistPage.tsx    ← รายการที่บันทึกไว้
-│   │   ├── RequestsPage.tsx    ← บอร์ดตามหาหนังสือ
-│   │   └── ChatPage.tsx        ← ระบบข้อความ/แชท
-│   ├── App.tsx                 ← จุดศูนย์กลาง Routes ทั้งหมด
-│   ├── main.tsx                ← Entry point
-│   └── index.css               ← Global styles + Tailwind directives
-├── tailwind.config.js          ← ตั้งค่าสีและฟอนต์แบบ Custom
-├── .vscode/settings.json       ← ปิดคำเตือน CSS ของ VS Code
-└── index.html                  ← HTML หลัก
+│   ├── contexts/
+│   │   └── AuthContext.tsx     ← สถานะล็อกอิน (JWT)
+│   ├── services/
+│   │   └── api.ts              ← HTTP client เรียก Backend
+│   ├── data/                   ← mockBooks.ts, mockBooksTh.ts (ใช้ในหน้า Landing)
+│   ├── pages/                  ← 14 หน้า (ดูรายการด้านล่าง)
+│   ├── App.tsx                 ← Routes ทั้งหมด
+│   ├── main.tsx
+│   └── index.css
+├── docker-compose.yml          ← db (PostgreSQL 16) + api (FastAPI)
+├── tailwind.config.js
+└── index.html
 ```
 
 ---
 
-## 🗺️ หน้าเว็บทั้งหมด (12 หน้า)
+## 🗺️ หน้าเว็บทั้งหมด (14 หน้า)
+
+### สถานะการเชื่อมต่อข้อมูลของแต่ละหน้า
+
+| หน้า | ข้อมูล |
+|---|---|
+| Login, Signup, Browse, BookDetail, AddBook, MyBooks, Settings | ต่อ API จริง |
+| Requests (บอร์ดตามหา) | ต่อ API แล้ว แต่ API ตอบ HTTP 500 (ดู README) |
+| Landing | หนังสือแนะนำมาจาก Mock |
+| Profile | ข้อมูลผู้ใช้จริง · สถิติ/ประวัติ/แต้มเป็น Mock |
+| Dashboard, Chat, Wishlist | Mock ทั้งหมด |
+| About | เนื้อหาคงที่ |
+
 
 ### 1. หน้าแรก — `LandingPage.tsx` → `/`
 - **Hero Section:** Layout ไม่สมมาตร (Asymmetric) ข้อความฝั่งซ้าย 5 คอลัมน์ / รูปภาพซ้อนกันแบบ Editorial ฝั่งขวา 7 คอลัมน์
@@ -73,7 +75,7 @@ d:\ReRead\
 
 ### 2. เข้าสู่ระบบ — `LoginPage.tsx` → `/login`
 - Layout Split ครึ่งจอ: ฟอร์มฝั่งซ้าย / ภาพบรรยากาศร้านหนังสือฝั่งขวา
-- ปุ่ม Social Login (Google + GitHub) แบบ Outline ไม่ใช้สีเต็ม
+- ปุ่ม Social Login (Google + GitHub) แบบ Outline ไม่ใช้สีเต็ม — **UI เท่านั้น ยังไม่ทำงาน**
 - Inline Error ด้วยสีส้มดินเผา (`warning`)
 - ไม่มี Navbar/Footer (Full-screen)
 
@@ -87,7 +89,7 @@ d:\ReRead\
 - Filter Sidebar ฝั่งซ้าย: Checkbox กรองตามหมวดหมู่, สภาพหนังสือ, สถานะ
 - Grid หนังสือ: 2 คอลัมน์บนมือถือ, 3-4 คอลัมน์บน Desktop
 - Sorting dropdown (เรียงตามมาใหม่ล่าสุด)
-- Pagination (Mock)
+- Pagination ฝั่ง client (ดึงหนังสือ 100 เล่มแรกมากรองในเบราว์เซอร์)
 
 ### 5. รายละเอียดหนังสือ — `BookDetailPage.tsx` → `/book/:id`
 - Layout 2 คอลัมน์: Gallery ภาพ + Thumbnail แนวตั้งฝั่งซ้าย / รายละเอียดฝั่งขวา
@@ -123,7 +125,7 @@ d:\ReRead\
 
 ### 9. หนังสือของฉัน — `MyBooksPage.tsx` → `/my-books`
 - แสดงสถิติ: หนังสือทั้งหมด / พร้อมแลก / รอแลกอยู่
-- Grid การ์ดหนังสือ + ปุ่มแก้ไข/ลบใต้แต่ละการ์ด
+- Grid การ์ดหนังสือ + ปุ่มแก้ไข/ลบใต้แต่ละการ์ด (ปุ่มลบทำงานจริง · ปุ่มแก้ไขยังไม่ทำงาน)
 - ปุ่ม "เพิ่มหนังสือ" เชื่อมไปหน้า Add Book
 
 ### 10. รายการที่บันทึกไว้ — `WishlistPage.tsx` → `/wishlist`
@@ -144,7 +146,16 @@ d:\ReRead\
 - ฟองข้อความ: สีเขียว (ฝั่งฉัน) / สีพื้น (อีกฝ่าย)
 - **พิมพ์ข้อความได้จริง:** กด Enter หรือปุ่ม Send ข้อความใหม่ขึ้นมาทันที
 - Scroll อัตโนมัติลงล่างสุด **เฉพาะภายในกล่องแชท** (ไม่ทำให้หน้าจอหลักไหล)
-- ข้อมูล Mock: 3 บทสนทนา กับ วรรณา ก., ภูมิ ส., ดาว ร.
+- ข้อมูล Mock: 3 บทสนทนา กับ วรรณา ก., ภูมิ ส., ดาว ร. (ยังไม่มี Backend รองรับ)
+
+---
+
+### 13. ตั้งค่าบัญชี — `SettingsPage.tsx` → `/settings`
+- แก้ไขชื่อที่แสดง/รูปโปรไฟล์ และเปลี่ยนรหัสผ่านผ่าน API จริง
+- ถ้ายังไม่ล็อกอิน จะ redirect ไปหน้า Login
+
+### 14. เกี่ยวกับเรา — `AboutPage.tsx` → `/about`
+- เรื่องราวและแนวคิดของ ReRead
 
 ---
 
@@ -174,9 +185,9 @@ d:\ReRead\
 
 ---
 
-## 🗃️ ข้อมูล Mock (ไม่ต้อง API จริง)
+## 🗃️ ข้อมูล Mock ที่ยังเหลืออยู่ (ยังไม่มี API จริง)
 
-### `data/mockBooks.ts`
+### `data/mockBooks.ts` (ใช้ในหน้า Landing)
 - หนังสือ 4 เล่ม: The Secret History, Norwegian Wood, Dune, Pride and Prejudice
 - แต่ละเล่มมี: id, title, author, coverUrl, condition, description, owner (ชื่อ+avatar), tags, status
 - ชื่อเจ้าของเป็นภาษาไทย: วรรณา ก., ภูมิ ส., มินต์, ดาว ร.
@@ -220,12 +231,14 @@ d:\ReRead\
 
 | เครื่องมือ | เวอร์ชัน | หน้าที่ |
 |---|---|---|
-| React | 18+ | UI Framework |
-| TypeScript | 5+ | Type Safety |
+| React | 19 | UI Framework |
+| TypeScript | 6 | Type Safety |
 | Vite | 8.x | Build Tool + Dev Server |
 | Tailwind CSS | 3.x | Styling (Custom Theme) |
-| React Router | 6.x | Client-side Routing |
+| React Router | 7 | Client-side Routing |
 | Lucide React | Latest | Icon Library (ทดแทน Emoji) |
+
+**ฝั่ง Backend:** FastAPI 0.115, SQLAlchemy 2.0 (async), PostgreSQL 16, Alembic, Pydantic v2, JWT, Docker — รายละเอียดใน [backend/README.md](backend/README.md)
 
 ---
 
@@ -245,3 +258,5 @@ d:\ReRead\
 | `/wishlist` | รายการที่บันทึกไว้ |
 | `/requests` | บอร์ดตามหาหนังสือ |
 | `/chat` | ระบบข้อความ/แชท |
+| `/settings` | ตั้งค่าบัญชี |
+| `/about` | เกี่ยวกับเรา |
